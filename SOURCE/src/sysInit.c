@@ -165,6 +165,6 @@ _Bool FlashConfigRead(void){
   
   conf.sector.checkSum = FlashConfigCheckSum();
   conf.sector.nWrite = 0x00;
-  FlashConfigsWrite(conf.data32, 0x00);
+//  FlashConfigsWrite(conf.data32, 0x00);
   return false;
 }

@@ -1,8 +1,6 @@
 #include "setting.h"
 
 void Setting(void){
-  
-  InitCPU();
   FlashConfigRead();
   RtcInit();
   I2cInit();

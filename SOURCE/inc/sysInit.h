@@ -84,7 +84,7 @@ extern uint32_t upTime;
 
 //--------------------------------------------------------------------------------------------------------------------//
 void DelayMs(uint32_t ms);
-_Bool InitCPU(void);
+_Bool Sysinit(void);
 void FlashAllErase(void);
 void FlashConfigUpdate(void);
 _Bool FlashConfigRead(void);

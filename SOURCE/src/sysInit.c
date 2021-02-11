@@ -24,7 +24,7 @@ void DelayMs(uint32_t ms){ uint32_t tickStart = msTicks;
 }
 
 //--------------------------------------------------------------------------------------------------------------------//
-_Bool InitCPU(void){
+_Bool Sysinit(void){
   uint8_t status = true;
   status = SysTick_Config(SystemCoreClock / 1000);   //1ms
   
@@ -40,100 +40,15 @@ _Bool InitCPU(void){
   RCC->APB2ENR |= RCC_APB2ENR_IOPDEN;
   RCC->APB2ENR |= RCC_APB2ENR_IOPEEN;
   
+  GPIOB->CRL &= ~GPIO_CRL_CNF5; //LED
+  GPIOB->CRL |= GPIO_CRL_MODE5;
+  
   return status;
 }
 
-//--------------------------------------------------------------------------------------------------------------------//
-void FlashAllErase(void){
-  FLASH->KEYR = INT_FLASH_KEY1;
-  FLASH->KEYR = INT_FLASH_KEY2;
-  FLASH->CR |= FLASH_CR_MER;
-  FLASH->CR |= FLASH_CR_STRT;
-  FLASH->CR |= FLASH_CR_LOCK;
-}
 
-//--------------------------------------------------------------------------------------------------------------------//
-void FlashConfigsErase(void){
-  FLASH->KEYR = INT_FLASH_KEY1;
-  FLASH->KEYR = INT_FLASH_KEY2;
-  while(FLASH->SR & FLASH_SR_BSY);
-  if(FLASH->SR & FLASH_SR_EOP) FLASH->SR = FLASH_SR_EOP;
-  FLASH->CR |= FLASH_CR_PER;
-  FLASH->AR = CONFIG_MEMORY_START;
-  FLASH->CR |= FLASH_CR_STRT;
-  while(!(FLASH->SR & FLASH_SR_EOP));
-  FLASH->SR = FLASH_SR_EOP;
-  FLASH->CR &= ~FLASH_CR_PER;
-  FLASH->CR |= FLASH_CR_LOCK;
-}
-
-//--------------------------------------------------------------------------------------------------------------------//
-void FlashConfigsWrite(uint32_t* buff, uint8_t sector){
-  uint32_t adr = sector * CONFIG_MEMORY_SECTOR;
-  uint32_t data;
-  if(adr >= CONFIG_MEMORY_SIZE) adr = 0x00;
-  adr += CONFIG_MEMORY_START;
-  FLASH->KEYR = INT_FLASH_KEY1;
-  FLASH->KEYR = INT_FLASH_KEY2;
-  while(FLASH->SR & FLASH_SR_BSY);
-  if(FLASH->SR & FLASH_SR_EOP) FLASH->SR = FLASH_SR_EOP;
-  FLASH->CR |= FLASH_CR_PG;
-  for(uint16_t i = 0x00; i < CONFIG_MEMORY_BUFF; i++){
-    data = buff[i];
-    *(__IO uint16_t*)adr = (uint16_t)data;
-    while(!(FLASH->SR & FLASH_SR_EOP));
-    FLASH->SR = FLASH_SR_EOP;
-    adr += 0x02;
-    data >>= 0x10;
-    *(__IO uint16_t*)adr = (uint16_t)data;
-    while(!(FLASH->SR & FLASH_SR_EOP));
-    FLASH->SR = FLASH_SR_EOP;
-    adr += 0x02;
-  }
-  FLASH->CR &= ~(FLASH_CR_PG);
-  FLASH->CR |= FLASH_CR_LOCK;
-}
-
-//--------------------------------------------------------------------------------------------------------------------//
-void FlashConfigsRead(uint32_t* buff, uint8_t sector){
-  uint32_t adr = sector * CONFIG_MEMORY_SECTOR;
-  if(adr >= CONFIG_MEMORY_SIZE) adr = 0x00;
-  adr += CONFIG_MEMORY_START;
-  for(uint16_t i = 0x00; i < CONFIG_MEMORY_BUFF; i++){
-    buff[i] = *(uint32_t*)adr;
-    adr += 0x04;
-  }
-}
-
-//--------------------------------------------------------------------------------------------------------------------//
-uint32_t FlashConfigCheckSum(void){
-  uint32_t checkSum = 0x00;
-  for(uint32_t i = 0x00; i< (CONFIG_MEMORY_SECTOR - 0x10); i++){
-    checkSum += conf.sector.data8[i];
-  }
-  return checkSum;
-}
-
-//--------------------------------------------------------------------------------------------------------------------//
-void FlashConfigUpdate(void){
-  conf.sector.nWrite++;
-  uint8_t sector = (conf.sector.nWrite % CONFIG_MEMORY_N_SECTOR);
-  conf.sector.checkSum = FlashConfigCheckSum();
-  FlashConfigsErase();
-  FlashConfigsWrite(conf.data32, sector);
-}
 //--------------------------------------------------------------------------------------------------------------------//
 _Bool FlashConfigRead(void){
-  for(uint8_t i = 0x00; i < CONFIG_MEMORY_N_SECTOR; i++){ 
-    FlashConfigsRead(conf.data32, i);
-    if(!(CONFIG_MAGIC_KEY == conf.settings.magicKEY)){
-      if(FlashConfigCheckSum() == conf.sector.checkSum){
-        return false;
-      }
-    }
-  }
-  memset(conf.data32, 0xFFFFFFFF, sizeof(conf.data32));
-  conf.settings.magicKEY = CONFIG_MAGIC_KEY;
   
   RtcTypeDef dateBuild;
   dateBuild.year  = BUILD_YEAR;
@@ -163,8 +78,5 @@ _Bool FlashConfigRead(void){
   
   
   
-  conf.sector.checkSum = FlashConfigCheckSum();
-  conf.sector.nWrite = 0x00;
-//  FlashConfigsWrite(conf.data32, 0x00);
   return false;
 }

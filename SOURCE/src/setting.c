@@ -1,7 +1,8 @@
 #include "setting.h"
 
+configFlash conf;
 void Setting(void){
-  FlashConfigRead();
+
   RtcInit();
   I2cInit();
   Nrf24Init();
@@ -12,6 +13,16 @@ void Setting(void){
     printf("\n\r\t\tStart setting\n\r\n");
   #endif
   printf("\tHardware : %s\tSoftware : %s\r\n",HW_BUILD ,SW_BUILD);
-  printf("Unique ID 0x%08x 0x%08x 0x%08x\r\n",IDCODE_1, IDCODE_2, IDCODE_3);
 
+}
+_Bool FlashConfigRead(void){
+  
+  RtcTypeDef dateBuild;
+  dateBuild.year  = BUILD_YEAR;
+  dateBuild.month = BUILD_MONTH;
+  dateBuild.day   = BUILD_DAY;
+  dateBuild.hour  = BUILD_TIME_H;
+  dateBuild.min   = BUILD_TIME_M;
+  dateBuild.sec   = BUILD_TIME_S;
+  return false;
 }

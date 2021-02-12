@@ -187,11 +187,11 @@ _Bool Nrf24Init(void){// Производим первоначальную на�
       Nrf24l01WriteReg(NRF24_EN_RXADDR, NRF24_ERX_P0 | NRF24_ERX_P1 | NRF24_ERX_P2); // включение каналов 0, 1 и 2
       Nrf24l01WriteReg(NRF24_SETUP_AW, NRF24_SETUP_AW_3BYTES_ADDRESS); // выбор длины адреса 3 байт
       Nrf24l01WriteReg(NRF24_SETUP_RETR, ((~(DEVICE_TYPE << 0x05)) & 0xE0) | NRF24_SETUP_15_RETRANSMIT);
-      Nrf24l01WriteReg(NRF24_CH, (conf.settings.nRF24L01Ch & 0x7F)); // Выбор частотного канала
-      Nrf24l01WriteReg(NRF24_SETUP, (((conf.settings.nRF24L01Speed << 0x01) & 0x20) | ((conf.settings.nRF24L01Speed << 0x03) & 0x08) | ((conf.settings.nRF24L01Power << 0x01) & 0x06)));
-      Nrf24l01WriteAdr(NRF24_TX_ADDR,    ((conf.settings.nRF24L01Addr << 0x08) | conf.settings.nRF24L01Prim), 0x03);
-      Nrf24l01WriteAdr(NRF24_RX_ADDR_P0, ((conf.settings.nRF24L01Addr << 0x08) | conf.settings.nRF24L01Prim), 0x03); // Подтверждения приходят на канал 0
-      Nrf24l01WriteAdr(NRF24_RX_ADDR_P1, ((conf.settings.nRF24L01Addr << 0x08) | 0x80), 0x03);
+      Nrf24l01WriteReg(NRF24_CH, (conf.nRF24L01Ch & 0x7F)); // Выбор частотного канала
+      Nrf24l01WriteReg(NRF24_SETUP, (((conf.nRF24L01Speed << 0x01) & 0x20) | ((conf.nRF24L01Speed << 0x03) & 0x08) | ((conf.nRF24L01Power << 0x01) & 0x06)));
+      Nrf24l01WriteAdr(NRF24_TX_ADDR,    ((conf.nRF24L01Addr << 0x08) | conf.nRF24L01Prim), 0x03);
+      Nrf24l01WriteAdr(NRF24_RX_ADDR_P0, ((conf.nRF24L01Addr << 0x08) | conf.nRF24L01Prim), 0x03); // Подтверждения приходят на канал 0
+      Nrf24l01WriteAdr(NRF24_RX_ADDR_P1, ((conf.nRF24L01Addr << 0x08) | 0x80), 0x03);
       Nrf24l01WriteReg(NRF24_RX_ADDR_P2, 0xFF);
       Nrf24l01WriteReg(NRF24_RX_PW_P0, 32);
       Nrf24l01WriteReg(NRF24_RX_PW_P1, 32);

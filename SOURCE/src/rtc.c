@@ -138,15 +138,15 @@ _Bool RtcInit(void){
     RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;
     RCC->BDCR |= RCC_BDCR_LSEON;
     while((RCC->BDCR & RCC_BDCR_LSEON) != RCC_BDCR_LSEON){}
-    BKP->RTCCR |= conf.settings.rtcCalib;
+    BKP->RTCCR |= conf.rtcCalib;
     while(!(RTC->CRL & RTC_CRL_RTOFF));
     RTC->CRL |= RTC_CRL_CNF;
     RTC->PRLL = 0x7FFF;
     #if defined RTC_CCO
       BKP->RTCCR |= BKP_RTCCR_CCO;
     #endif
-    RTC->CNTH = conf.settings.dateBuild >> 0x10;
-    RTC->CNTL = conf.settings.dateBuild;
+    RTC->CNTH = conf.dateBuild >> 0x10;
+    RTC->CNTL = conf.dateBuild;
     RTC->CRL &= ~RTC_CRL_CNF;
     while(!(RTC->CRL & RTC_CRL_RTOFF));
     RTC->CRL &= (uint16_t) ~RTC_CRL_RSF;

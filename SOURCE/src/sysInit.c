@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------------------------------------------------//
 static __IO uint32_t msTicks;
 uint32_t upTime;
-union configFlash conf;
+
 
 //--------------------------------------------------------------------------------------------------------------------//
 #if defined ACTIVE_SWO
@@ -42,41 +42,10 @@ _Bool Sysinit(void){
   
   GPIOB->CRL &= ~GPIO_CRL_CNF5; //LED
   GPIOB->CRL |= GPIO_CRL_MODE5;
+  LED_OFF;
   
   return status;
 }
 
 
 //--------------------------------------------------------------------------------------------------------------------//
-_Bool FlashConfigRead(void){
-  
-  RtcTypeDef dateBuild;
-  dateBuild.year  = BUILD_YEAR;
-  dateBuild.month = BUILD_MONTH;
-  dateBuild.day   = BUILD_DAY;
-  dateBuild.hour  = BUILD_TIME_H;
-  dateBuild.min   = BUILD_TIME_M;
-  dateBuild.sec   = BUILD_TIME_S;
-  conf.settings.dateBuild = RtcTimeZoneAdjustment(RtcTimeToSeconds(&dateBuild), TIME_ZONE);
-  
-  conf.settings.hwBuild = (uint32_t)HW_BUILD;
-  conf.settings.swBuild = (uint32_t)SW_BUILD;
-  
-  conf.settings.deviceType = DEVICE_TYPE;
-  conf.settings.deviceNumber = DEVICE_NUMBER;
-  conf.settings.timeZone = TIME_ZONE;
-  conf.settings.rtcCalib = RTC_CALIBRATION;
-  
-  conf.settings.canSpeed = CAN_SPEED;
-  conf.settings.rs485Speed = RS485_SPEED;
-  
-  conf.settings.nRF24L01Addr = RF24L01_ADDR;
-  conf.settings.nRF24L01Prim = RF24L01_PRIM;
-  conf.settings.nRF24L01Speed = RF24L01_SPEED;
-  conf.settings.nRF24L01Power = RF24L01_POWER;
-  conf.settings.nRF24L01Ch = NRF24L01_CH;
-  
-  
-  
-  return false;
-}

@@ -4,90 +4,45 @@
 //--------------------------------------------------------------------------------------------------------------------//
 #include "stm32f10x.h"
 #include "string.h"
+#include "setting.h"
+
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 
-#include "setting.h"
+//--------------------------------------------------------------------------------------------------------------------//
+#if ( defined INFO || defined DEBUG )
+  #define ACTIVE_SWO
+#endif
 
 #if defined ACTIVE_SWO
   #include "stdio.h"
+  #define ITM_Port8(n)                  (*((volatile unsigned char *)(0xE0000000+4*n)))
+  #define ITM_Port32(n)                 (*((volatile unsigned long *)(0xE0000000+4*n)))
+  #define DEMCR                         (*((volatile unsigned long *)(0xE000EDFC)))
+  #define TRCENA                        0x01000000
 #endif
+  
+#define true                            0x01
+#define false                           0x00
+#define LED_OFF                         GPIOB->BSRR = GPIO_BSRR_BS5
+#define LED_ON                          GPIOB->BSRR = GPIO_BSRR_BR5
 
 //--------------------------------------------------------------------------------------------------------------------//
-#define CONFIG_MAGIC_KEY                0x87278727
-
-#define INT_FLASH_KEY1                  ((uint32_t)0x45670123)
-#define INT_FLASH_KEY2                  ((uint32_t)0xCDEF89AB)
-#define CONFIG_MEMORY_START             ((uint32_t)0x0801F800)  // адрес, с которого будет начинаться запись во флеш (с начала 126-ой страницы F103)
-#define CONFIG_MEMORY_SIZE              ((uint16_t)0X0400)      //1024 объем флеша (F103)
-#define CONFIG_MEMORY_SECTOR            ((uint16_t)0X0100)      //256 размер сектора (F103)
-#define CONFIG_MEMORY_N_SECTOR          (CONFIG_MEMORY_SIZE / CONFIG_MEMORY_SECTOR)
-#define CONFIG_MEMORY_BUFF              (CONFIG_MEMORY_SECTOR / CONFIG_MEMORY_N_SECTOR)
-
-#define IDCODE_1                        (*(uint32_t *)0x1FFFF7E8)
-#define IDCODE_2                        (*(uint32_t *)0x1FFFF7EC)
-#define IDCODE_3                        (*(uint32_t *)0x1FFFF7F0)
+#define BUILD_YEAR (__DATE__[7] == '?' ? 1900 : (((__DATE__[7] - '0') * 1000 ) + (__DATE__[8] - '0') * 100 + (__DATE__[9] - '0') * 10 + __DATE__[10] - '0'))
+#define BUILD_MONTH (__DATE__ [2] == '?' ? 1 : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) : __DATE__ [2] == 'b' ? 2 : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
+        : __DATE__ [2] == 'y' ? 5 : __DATE__ [2] == 'l' ? 7 : __DATE__ [2] == 'g' ? 8 : __DATE__ [2] == 'p' ? 9 : __DATE__ [2] == 't' ? 10 : __DATE__ [2] == 'v' ? 11 : 12)
+#define BUILD_DAY (__DATE__[4] == '?' ? 1 : ((__DATE__[4] == ' ' ? 0 : ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
+#define BUILD_TIME_H (__TIME__[0] == '?' ? 1 : ((__TIME__[0] == ' ' ? 0 : ((__TIME__[0] - '0') * 10)) + __TIME__[1] - '0'))
+#define BUILD_TIME_M (__TIME__[3] == '?' ? 1 : ((__TIME__[3] - '0') * 10 + __TIME__[4] - '0'))
+#define BUILD_TIME_S (__TIME__[6] == '?' ? 1 : ((__TIME__[6] - '0') * 10 + __TIME__[7] - '0'))
 
 //--------------------------------------------------------------------------------------------------------------------//
-typedef struct{
-  uint32_t magicKEY;
-  uint32_t dateBuild;
-  uint32_t hwBuild;
-  uint32_t swBuild;
-  
-  uint8_t  deviceType;
-  uint8_t  deviceNumber;
-  uint8_t  timeZone;
-  uint8_t  rtcCalib;
-  
-  uint32_t canSpeed;
-  uint16_t rs485Speed;
-  
-  uint16_t nRF24L01Addr;
-  uint8_t  nRF24L01Prim;
-  uint8_t  nRF24L01Speed;
-  uint8_t  nRF24L01Power;
-  uint8_t  nRF24L01Ch;
-  uint8_t  rf24TypeOn;
-  uint8_t  rf24TypeSend1;
-  uint8_t  rf24TypeAddr1;
-  uint8_t  rf24TypeSend2;
-  uint8_t  rf24TypeAddr2;
-  uint8_t  rf24TypeSend3;
-  uint8_t  rf24TypeAddr3;
-  uint8_t  rf24TypeSend4;
-  uint8_t  rf24TypeAddr4;
-
-}config_t;
-
-struct flashSector{
-  uint8_t data8 [CONFIG_MEMORY_SECTOR - 0x10];
-  uint8_t  securityStartOn;
-  uint8_t  securityTimeOn;
-  uint16_t securityStart;
-  uint32_t securityTime;
-  uint32_t checkSum;
-  uint32_t nWrite;
-};
-
-union configFlash{
-  config_t settings;
-  struct flashSector sector;
-  uint32_t data32[CONFIG_MEMORY_SECTOR];
-};
-
-//--------------------------------------------------------------------------------------------------------------------//
-extern union configFlash conf;
 extern uint32_t upTime;
 
 //--------------------------------------------------------------------------------------------------------------------//
 void DelayMs(uint32_t ms);
 _Bool Sysinit(void);
-void FlashAllErase(void);
-void FlashConfigUpdate(void);
-_Bool FlashConfigRead(void);
-
 
 #endif /* SYSINIT_H */

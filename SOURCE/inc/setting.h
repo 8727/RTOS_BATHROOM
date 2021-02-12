@@ -71,30 +71,44 @@
                                                     //0x0823       //19200
                                                     //0x1047       //9600
 
-//--------------------------------------------------------------------------------------------------------------------//
-#if ( defined INFO || defined DEBUG)
-  #define ACTIVE_SWO
-#endif
 
-#if defined ACTIVE_SWO
-  #define ITM_Port8(n)                  (*((volatile unsigned char *)(0xE0000000+4*n)))
-  #define ITM_Port32(n)                 (*((volatile unsigned long *)(0xE0000000+4*n)))
-  #define DEMCR                         (*((volatile unsigned long *)(0xE000EDFC)))
-  #define TRCENA                        0x01000000
-#endif
 
-#define true                            0x01
-#define false                           0x00
+
 
 
 //--------------------------------------------------------------------------------------------------------------------//
-#define BUILD_YEAR (__DATE__[7] == '?' ? 1900 : (((__DATE__[7] - '0') * 1000 ) + (__DATE__[8] - '0') * 100 + (__DATE__[9] - '0') * 10 + __DATE__[10] - '0'))
-#define BUILD_MONTH (__DATE__ [2] == '?' ? 1 : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) : __DATE__ [2] == 'b' ? 2 : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
-        : __DATE__ [2] == 'y' ? 5 : __DATE__ [2] == 'l' ? 7 : __DATE__ [2] == 'g' ? 8 : __DATE__ [2] == 'p' ? 9 : __DATE__ [2] == 't' ? 10 : __DATE__ [2] == 'v' ? 11 : 12)
-#define BUILD_DAY (__DATE__[4] == '?' ? 1 : ((__DATE__[4] == ' ' ? 0 : ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
-#define BUILD_TIME_H (__TIME__[0] == '?' ? 1 : ((__TIME__[0] == ' ' ? 0 : ((__TIME__[0] - '0') * 10)) + __TIME__[1] - '0'))
-#define BUILD_TIME_M (__TIME__[3] == '?' ? 1 : ((__TIME__[3] - '0') * 10 + __TIME__[4] - '0'))
-#define BUILD_TIME_S (__TIME__[6] == '?' ? 1 : ((__TIME__[6] - '0') * 10 + __TIME__[7] - '0'))
+typedef struct{
+  uint32_t magicKEY;
+  uint32_t dateBuild;
+  uint32_t hwBuild;
+  uint32_t swBuild;
+  
+  uint8_t  deviceType;
+  uint8_t  deviceNumber;
+  uint8_t  timeZone;
+  uint8_t  rtcCalib;
+  
+  uint32_t canSpeed;
+  uint16_t rs485Speed;
+  
+  uint16_t nRF24L01Addr;
+  uint8_t  nRF24L01Prim;
+  uint8_t  nRF24L01Speed;
+  uint8_t  nRF24L01Power;
+  uint8_t  nRF24L01Ch;
+  uint8_t  rf24TypeOn;
+  uint8_t  rf24TypeSend1;
+  uint8_t  rf24TypeAddr1;
+  uint8_t  rf24TypeSend2;
+  uint8_t  rf24TypeAddr2;
+  uint8_t  rf24TypeSend3;
+  uint8_t  rf24TypeAddr3;
+  uint8_t  rf24TypeSend4;
+  uint8_t  rf24TypeAddr4;
+
+}configFlash;
+
+extern configFlash conf;
 
 //--------------------------------------------------------------------------------------------------------------------//
 void Setting(void);

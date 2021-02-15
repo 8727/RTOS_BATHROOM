@@ -15,7 +15,7 @@ void eepromWriteWaitEnd(void){
   eepromWriteRead(CMD_R_STATUS_1);
   do{
     status = eepromWriteRead(0x00);
-    #if defined DEBUG_EEPROM
+    #if defined DEBUG
       printf("EEPROM Wait...\r\n");
     #endif
   }while((status & 0x01) == 0x01);
@@ -132,11 +132,10 @@ void eepromInit(void){
     break;
   }
   
-  #if defined DEBUG_EEPROM
+  #if defined INFO
     printf("< OK >    Initialization EEPROM\r\n");
   #endif
-  #if defined DEBUG_EEPROM
+  #if defined INFO
     printf("< OK >    EEPROM : %s\r\n", eeprom.name);
   #endif
-  eepromReadTable();
 }

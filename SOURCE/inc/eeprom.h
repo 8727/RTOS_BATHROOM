@@ -3,6 +3,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
+#include "setting.h"
 
 /* Define --------------------------------------------------------------------*/
 #define EEPROM_CS_LOW      GPIOA->BSRR = GPIO_BSRR_BR4

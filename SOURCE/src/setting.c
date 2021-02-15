@@ -6,13 +6,14 @@ void Setting(void){
   RtcInit();
   I2cInit();
   Nrf24Init();
+  eepromInit();
 //  CanInit();
 //  Rs485Init();
   
   #if defined DEBUG
     printf("\n\r\t\tStart setting\n\r\n");
   #endif
-  printf("\tHardware : %s\tSoftware : %s\r\n",HW_BUILD ,SW_BUILD);
+  //printf("\tHardware : %s\tSoftware : %s\r\n",HW_BUILD ,SW_BUILD);
 
 }
 _Bool FlashConfigRead(void){
